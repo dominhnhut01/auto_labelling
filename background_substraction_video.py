@@ -6,7 +6,7 @@ import os
 areaThreshold = 100
 h_resize = 1480
 w_resize = 2048
-img_folder ="dataset/sub_fox_vid/vid1"
+img_folder ="dataset/sub_fox_vid/vid11"
 img_dir_list = os.listdir(img_folder)
 for file in img_dir_list:
     if "background" in file:
@@ -19,16 +19,16 @@ for i in range(10):
 for i in range(len(img_dir_list)):
     img_dir_list[i] = img_folder + '/' + img_dir_list[i]
 
-label_dir = "dataset/sub_fox_vid/vid1_mask"
-annotation_dir = "dataset/sub_fox_vid/vid1_annotation"
+label_dir = "dataset/sub_fox_vid/vid11_mask"
+annotation_dir = "dataset/sub_fox_vid/vid11_annotation"
 
-def crop(img, new_h = 1480, new_w = 2048):
+def crop(img, h_resize = 1480, w_resize = 2048):
     """
     Crop the image about the center to eliminate the heading part of the photos
 
     Args:
     img: cv2 image object
-    new_h, new_w: new height and weight
+    h_resize, w_resize: new height and weight
 
     Returns:
     cropped: cropped image
@@ -37,8 +37,8 @@ def crop(img, new_h = 1480, new_w = 2048):
     h = img.shape[0]
     w = img.shape[1]
     center = (h/2, w/2)
-    new_A = (int(center[0] - new_h/2), int(center[1] - new_w/2))
-    new_C = (int(center[0] + new_h/2), int(center[1] + new_w/2))
+    new_A = (int(center[0] - h_resize/2), int(center[1] - w_resize/2))
+    new_C = (int(center[0] + h_resize/2), int(center[1] + w_resize/2))
 
     cropped = img[new_A[0]:new_C[0], new_A[1]:new_C[1]]
 
@@ -55,11 +55,10 @@ def create_video():
     width = cv2.imread(img_dir_list[0]).shape[1]
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     vid_dir = "out_vid.avi"
-    new_size = (1480, 2048)
-    vid = cv2.VideoWriter(vid_dir, fourcc, 20.0, (new_size[1], new_size[0]))
+    vid = cv2.VideoWriter(vid_dir, fourcc, 20.0, (w_resize, h_resize))
     for img_dir in img_dir_list:
         frame = cv2.imread(img_dir)
-        frame = crop(frame, new_size[0], new_size[1])
+        frame = crop(frame, h_resize, w_resize)
         vid.write(frame)
     return vid_dir
 def drawBoundingBox(mask, img, areaThreshold = 100):
@@ -83,6 +82,8 @@ def drawBoundingBox(mask, img, areaThreshold = 100):
     min_y = 500000
     max_x = 0
     max_y = 0
+
+    #Drawing the big box containing all small boxes (due to noises)
     for cnt in contours:
         if cv2.contourArea(cnt) < areaThreshold:
             continue
