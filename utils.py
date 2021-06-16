@@ -185,12 +185,19 @@ def save_result(img, orig_img_name, label_dir):
 
     cv2.imwrite(label_dir + "/" + orig_img_name, img)
 
-def writeLabel(coordinates, label_dir, filename):
-
+def writeLabel(img_dim, coordinates, label_dir, filename):
+    img_height, img_width = img_dim
     x1,x2,y1,y2 = coordinates
+
+    center_x = ((x1 + x2) / 2) / img_width
+    center_y = ((y1 + y2) / 2) / img_height
+
+    width = (x2 - x1)/img_width
+    height = (y2 - y1)/img_height
+
     filename = filename[:-4]
     File = open(label_dir  + "/" +  filename + ".txt", "w")
-    File.write("{} {} {} {}".format(x1,x2,y1,y2))
+    File.write("1 {} {} {} {}".format(center_x,center_y,width,height))
     File.close()
 
 def substract_background(dir_info, kernelSize_medianBlur, kernelSize_dilation, areaThreshold):
@@ -231,6 +238,7 @@ def substract_background(dir_info, kernelSize_medianBlur, kernelSize_dilation, a
             filename = os.path.basename(img_dir_list[idx])
             save_result(label_cache[idx], filename, label_dir)
             print("Saving " + label_dir + "/" + filename)
-            writeLabel((x1,x2,y1,y2), annotation_dir, filename)
+            img_dim = (img_cache[0].shape[0], img_cache[0].shape[1])
+            writeLabel(img_dim, (x1,x2,y1,y2), annotation_dir, filename)
     cap.release()
     cv2.destroyAllWindows()

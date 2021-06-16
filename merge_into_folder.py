@@ -7,8 +7,17 @@ parent_dir = "dataset"
 dest_dir = (parent_dir + "/" + "Result_Dataset/orig_img", parent_dir + "/" + "Result_Dataset/boundingbox", parent_dir + "/" + "Result_Dataset/annotation")
 try:
     os.mkdir(parent_dir + "/" + "Result_Dataset")
+except:
+    print("Folder already exists!" )
+try:
     os.mkdir(parent_dir + "/" + "Result_Dataset/boundingbox")
+except:
+    print("Folder already exists!" )
+try:
     os.mkdir(parent_dir + "/" + "Result_Dataset/orig_img")
+except:
+    print("Folder already exists!" )
+try:
     os.mkdir(parent_dir + "/" + "Result_Dataset/annotation")
 except:
     print("Folder already exists!" )
