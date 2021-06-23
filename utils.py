@@ -53,25 +53,25 @@ def process_img(mask, img, areaThreshold, kernelSize_medianBlur, kernelSize_dila
 
 def generate_dir_list(img_folder):
     img_dir_list = os.listdir(img_folder)
-    have_real_background = True
-    background = None
-    for i in range(len(img_dir_list)):
-        if i >= len(img_dir_list):
-            break
-        if "fake_background" in img_dir_list[i]:
-            have_real_background = False
-        if "background" in img_dir_list[i]:
-            background = img_dir_list.pop(i)
-            #print(background)
 
-    if have_real_background:
-        for i in range(10):
-            img_dir_list.insert(0, background)
-    else:
-        img_dir_list.insert(0, background)
+    #Add absolute path
     for i in range(len(img_dir_list)):
         img_dir_list[i] = img_folder + '/' + img_dir_list[i]
-    return img_dir_list
+
+    #divide the images into many sub-groups
+    batch_size = 30
+    img_dir_list_chunks = [img_dir_list[x:x+batch_size] for x in range(0, len(img_dir_list), batch_size)]
+
+    background = None
+    for i in range(len(img_dir_list)):
+        if "background" in img_dir_list[i]:
+            background = img_dir_list.pop(i)
+            break
+
+    #Add 7 background frames to the video
+    for sub_group in img_dir_list_chunks:
+        sub_group.insert(0, background)
+    return img_dir_list_chunks
 
 def crop(img, h_resize = 1480, w_resize = 2048):
     """
@@ -95,23 +95,28 @@ def crop(img, h_resize = 1480, w_resize = 2048):
 
     return cropped
 
-def create_video(img_dir_list, h_resize, w_resize):
+def create_video(img_dir_list_chunks, h_resize, w_resize):
     """
     Combine the available images (with the same background) to use in the background substration algorithm
 
     Returns:
     vid_dir: the path to the exported video
     """
-    height = cv2.imread(img_dir_list[0]).shape[0]
-    width = cv2.imread(img_dir_list[0]).shape[1]
+    height = cv2.imread(img_dir_list_chunks[0][0]).shape[0]
+    width = cv2.imread(img_dir_list_chunks[0][0]).shape[1]
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    vid_dir = "out_vid.avi"
-    vid = cv2.VideoWriter(vid_dir, fourcc, 20.0, (w_resize, h_resize))
-    for img_dir in img_dir_list:
-        frame = cv2.imread(img_dir)
-        frame = crop(frame, h_resize, w_resize)
-        vid.write(frame)
-    return vid_dir
+
+    vid_dir_list = []
+    for i, img_dir_group in enumerate(img_dir_list_chunks):
+        vid_dir = "out_vid_{}.avi".format(i+1)
+        vid_dir_list.append(vid_dir)
+        vid = cv2.VideoWriter(vid_dir, fourcc, 20.0, (w_resize, h_resize))
+        for img_dir in img_dir_group:
+            frame = cv2.imread(img_dir)
+            frame = crop(frame, h_resize, w_resize)
+            vid.write(frame)
+        print("Written {}".format(vid_dir))
+    return vid_dir_list
 
 def filter_mask(fgMask, contours, kernelSize, areaThreshold):
     #Deleting environment noises
@@ -211,34 +216,39 @@ def substract_background(dir_info, kernelSize_medianBlur, kernelSize_dilation, a
     None
     """
 
-    vid_dir, img_dir_list, label_dir, annotation_dir, binary_mask_dir = dir_info
-    print(vid_dir)
-    cap = cv2.VideoCapture(vid_dir)
-    if cap.isOpened() == False:
-        print("Unable to open the video")
-        exit(0)
-    fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
-    img_cache = []
-    mask_cache = []
-    while True:
-        ret, frame = cap.read()
-        if ret == False:
-            break
-        fgMask = fgbg.apply(frame)
-        img_cache.append(frame)
-        mask_cache.append(fgMask)
-    label_cache = np.copy(img_cache)
-    create_trackbar(label_cache, mask_cache)
-    key = cv2.waitKey(0)
-    if key == 32:
+    vid_dir_list, img_dir_list_chunks, label_dir, annotation_dir, binary_mask_dir = dir_info
+
+    for vid_idx, vid_dir in enumerate(vid_dir_list):
+        cap = cv2.VideoCapture(vid_dir)
+        if cap.isOpened() == False:
+            print("Unable to open the video")
+            exit(0)
+        fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
+        img_cache = []
+        mask_cache = []
+
+        while True:
+            ret, frame = cap.read()
+            if ret == False:
+                break
+            fgMask = fgbg.apply(frame)
+            img_cache.append(frame)
+            mask_cache.append(fgMask)
+
+        label_cache = np.copy(img_cache)
+        if vid_idx == 0:
+            cv2.namedWindow("Visualizing", cv2.WINDOW_FULLSCREEN)
+            cv2.namedWindow("Adjusting params")
+            create_trackbar(label_cache, mask_cache)
+            key = cv2.waitKey(0)
         for idx in range(len(img_cache)):
             areaThreshold, kernelSize_medianBlur, kernelSize_dilation = getTrackbarValue()
             label_cache[idx], (x1,x2,y1,y2), mask_cache[idx]= process_img(mask_cache[idx], img_cache[idx], areaThreshold, kernelSize_medianBlur, kernelSize_dilation)
 
-            filename = os.path.basename(img_dir_list[idx])
+            filename = os.path.basename(img_dir_list_chunks[vid_idx][idx])
             save_result(label_cache[idx], filename, label_dir)
             print("Saving " + label_dir + "/" + filename)
             img_dim = (img_cache[0].shape[0], img_cache[0].shape[1])
             writeLabel(img_dim, (x1,x2,y1,y2), annotation_dir, filename)
-    cap.release()
+        cap.release()
     cv2.destroyAllWindows()
