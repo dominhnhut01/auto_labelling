@@ -21,7 +21,7 @@ def main(working_dir, h_resize, w_resize,  kernelSize_medianBlur, kernelSize_dil
             substract_background(dir_info, kernelSize_medianBlur, kernelSize_dilation, areaThreshold)
 
 if __name__ == '__main__':
-    working_dir = "dataset"
+    working_dir = "dataset/process"
     #Global variables
     areaThreshold = 2300
     kernelSize_medianBlur = 21

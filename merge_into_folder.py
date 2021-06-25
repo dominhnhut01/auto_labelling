@@ -4,13 +4,13 @@ from utils import crop
 import cv2
 
 parent_dir = "dataset"
-dest_dir = (parent_dir + "/" + "result/orig_img", parent_dir + "/" + "result/boundingbox", parent_dir + "/" + "result/annotation")
+dest_dir = (parent_dir + "/" + "result/orig_img", parent_dir + "/" + "result/bounding_box", parent_dir + "/" + "result/annotation")
 try:
     os.mkdir(parent_dir + "/" + "result")
 except:
     pass
 try:
-    os.mkdir(parent_dir + "/" + "result/boundingbox")
+    os.mkdir(parent_dir + "/" + "result/bounding_box")
 except:
     pass
 try:
@@ -32,7 +32,7 @@ for folder in os.listdir(source_dir):
 
 for folder in folder_name_list:
     img_folder = "{}/{}".format(source_dir, folder)
-    boundingbox_dir = "{}/{}_boundingbox".format(source_dir, folder)
+    boundingbox_dir = "{}/{}_bounding_box".format(source_dir, folder)
     annotation_dir = "{}/{}_annotation".format(source_dir, folder)
     for file in os.listdir(img_folder):
         img = cv2.imread(img_folder + "/" + file)
