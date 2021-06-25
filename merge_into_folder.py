@@ -4,37 +4,36 @@ from utils import crop
 import cv2
 
 parent_dir = "dataset"
-dest_dir = (parent_dir + "/" + "Result_Dataset/orig_img", parent_dir + "/" + "Result_Dataset/boundingbox", parent_dir + "/" + "Result_Dataset/annotation")
+dest_dir = (parent_dir + "/" + "result/orig_img", parent_dir + "/" + "result/boundingbox", parent_dir + "/" + "result/annotation")
 try:
-    os.mkdir(parent_dir + "/" + "Result_Dataset")
+    os.mkdir(parent_dir + "/" + "result")
 except:
-    print("Folder already exists!" )
+    pass
 try:
-    os.mkdir(parent_dir + "/" + "Result_Dataset/boundingbox")
+    os.mkdir(parent_dir + "/" + "result/boundingbox")
 except:
-    print("Folder already exists!" )
+    pass
 try:
-    os.mkdir(parent_dir + "/" + "Result_Dataset/orig_img")
+    os.mkdir(parent_dir + "/" + "result/orig_img")
 except:
-    print("Folder already exists!" )
+    pass
 try:
-    os.mkdir(parent_dir + "/" + "Result_Dataset/annotation")
+    os.mkdir(parent_dir + "/" + "result/annotation")
 except:
-    print("Folder already exists!" )
+    pass
 
-folder_idx_list = []
-source_dir = parent_dir + "/" + "sub_fox_vid"
+folder_name_list = []
+source_dir = parent_dir + "/" + "process"
 for folder in os.listdir(source_dir):
     if "." in folder or len(os.listdir(source_dir)) == 0:
         continue
     if "_" not in folder:
-        folder_idx = os.path.basename(folder[3:])
-        folder_idx_list.append(folder_idx)
+        folder_name_list.append(folder)
 
-for folder_idx in folder_idx_list:
-    img_folder = "{}/vid{}".format(source_dir, folder_idx)
-    boundingbox_dir = "{}/vid{}_boundingbox".format(source_dir, folder_idx)
-    annotation_dir = "{}/vid{}_annotation".format(source_dir, folder_idx)
+for folder in folder_name_list:
+    img_folder = "{}/{}".format(source_dir, folder)
+    boundingbox_dir = "{}/{}_boundingbox".format(source_dir, folder)
+    annotation_dir = "{}/{}_annotation".format(source_dir, folder)
     for file in os.listdir(img_folder):
         img = cv2.imread(img_folder + "/" + file)
         img = crop(img)
