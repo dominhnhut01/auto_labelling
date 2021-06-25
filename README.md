@@ -40,24 +40,16 @@ If the program runs too slow or have the sign of not responding, please reduce t
 
 ## Video demo:
   
-<!DOCTYPE html>
-<html>
-<body>
-  
-  <iframe src="<iframe src="https://drive.google.com/file/d/16nRJH1tiV8aQ5crkMXnRbXkVg9JoApBY/preview" width="1280" height="720" allow="autoplay"></iframe>" ></iframe>
-  
-  <!--aloow full screen add tag -->
-  
-<iframe allowfullscreen="allowfullscreen" src="your_page_url/preview" ></iframe>
-
-</body>
-</html>
-
+https://drive.google.com/file/d/16nRJH1tiV8aQ5crkMXnRbXkVg9JoApBY/view?usp=sharing
 
 ## Disadvantages:
 1/ Unfortunately, I cannot find the way to detect >=2 animals in the images. Therefore, if there are two foxes in the images, we have to label them by ourselves.
+
 2/ Currently, this program can only work for a set of images with very similar lighting conditions (different times in a day (even only 1-2 hours) will cause different lighting conditions). Therefore, even if a large set of images is taken from the same camera (same background), we have to divide them into smaller groups based on the time. I tried using histogram equalization but no luck. It would be great if someone can help me neutralize all the lighting conditions in the input photos. 
+
   Therefore, please use the background images having the timestamp near those of the images you wish to annotate so we can ensure the lighting condition is the same
+
 3/ Some images (20% - 30%) cannot be annotated properly with my script so we have to delete the error files and annotate them manually
+
 4/ Images having snowy or rainy weather or having no background images cannot be annotated well. So please don't add the in the first place
 
