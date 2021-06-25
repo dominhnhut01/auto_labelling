@@ -4,10 +4,10 @@ import os
 from functools import partial
 
 def create_trackbar(img_cache, mask_cache):
-    cv2.createTrackbar("AreaThreshold", "Adjusting params", 100, 20000, partial(visualizeParams, img_cache = img_cache, mask_cache = mask_cache))
     cv2.createTrackbar("medianBlur_kSize", "Adjusting params", 0, 70, partial(visualizeParams, img_cache = img_cache, mask_cache = mask_cache))
     cv2.createTrackbar("dilation_kSize", "Adjusting params", 0, 40, partial(visualizeParams, img_cache = img_cache, mask_cache = mask_cache))
-
+    cv2.createTrackbar("AreaThreshold", "Adjusting params", 100, 20000, partial(visualizeParams, img_cache = img_cache, mask_cache = mask_cache))
+    
 def visualizeParams(x, img_cache ,mask_cache):
     areaThreshold, kernelSize_medianBlur, kernelSize_dilation = getTrackbarValue()
     img_cache_copy = np.copy(img_cache)
@@ -92,17 +92,17 @@ def create_video(img_dir_list_chunks, h_resize, w_resize):
     """
     height = cv2.imread(img_dir_list_chunks[0][0]).shape[0]
     width = cv2.imread(img_dir_list_chunks[0][0]).shape[1]
-    #fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
 
     vid_dir_list = []
     for i, img_dir_group in enumerate(img_dir_list_chunks):
         vid_dir = "out_vid_{}.avi".format(i+1)
         vid_dir_list.append(vid_dir)
-        #vid = cv2.VideoWriter(vid_dir, fourcc, 20.0, (w_resize, h_resize))
+        vid = cv2.VideoWriter(vid_dir, fourcc, 20.0, (w_resize, h_resize))
         for img_dir in img_dir_group:
             frame = cv2.imread(img_dir)
             frame = crop(frame, h_resize, w_resize)
-            #vid.write(frame)
+            vid.write(frame)
         print("Written {}".format(vid_dir))
     return vid_dir_list
 
@@ -236,7 +236,7 @@ def substract_background(dir_info, kernelSize_medianBlur, kernelSize_dilation, a
 
         if vid_idx == 0:
             cv2.namedWindow("Visualizing", cv2.WINDOW_FULLSCREEN)
-            cv2.namedWindow("Adjusting params")
+            cv2.namedWindow("Adjusting params", cv2.WINDOW_NORMAL)
             create_trackbar(label_cache, mask_cache)
             key = cv2.waitKey(0)
 
