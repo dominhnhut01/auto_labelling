@@ -26,6 +26,11 @@ The main idea of this script is because our dataset is collected by a static cam
   The extra step to use if median blur cannot eliminate all the noise. Increase this will eliminate the white pixel whose area is smaller than this threshold.
   
 If the program runs too slow or have the sign of not responding, please reduce the batch_size which is located on line 53 in generate_dir_list function in the utils.py file
+  
+Video demo:
+<video width="1280" height="720" controls>
+  <source src="README_video/demo.avi" type="video/avi">
+</video>
 
 5/ After finishing applying the script on all images, run the merge_into_folder.py to merge all files into one folder inside "/dataset/result" for further manipulation.
 6/ Go into folder "/dataset/result/..._boundingbox", delete all files which have wrong bounding box because the script cannot annotate 100% right
