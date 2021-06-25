@@ -7,13 +7,16 @@ def main(working_dir, h_resize, w_resize,  kernelSize_medianBlur, kernelSize_dil
         if "_annotation" not in img_folder and "_boundingbox" not in img_folder:
             basename = os.path.basename(img_folder)
             img_folder = "{}/{}".format(working_dir, img_folder)
-            label_dir = "{}/{}_bounding_box".format(working_dir, basename)
+            bb_dir = "{}/{}_bounding_box".format(working_dir, basename)
             annotation_dir = "{}/{}_annotation".format(working_dir, basename)
-            binary_mask_dir = "{}/{}_binary_mask".format(working_dir, basename)
 
+            try:os.mkdir(bb_dir)
+            except:pass
+            try:os.mkdir(annotation_dir)
+            except:pass
             img_dir_list_chunks = generate_dir_list(img_folder)
             print("Folder: {}".format(basename))
-            dir_info = (create_video(img_dir_list_chunks, h_resize, w_resize), img_dir_list_chunks, label_dir, annotation_dir, binary_mask_dir)
+            dir_info = (create_video(img_dir_list_chunks, h_resize, w_resize), img_dir_list_chunks, bb_dir, annotation_dir)
             print("Reading the file...")
             substract_background(dir_info, kernelSize_medianBlur, kernelSize_dilation, areaThreshold)
 
