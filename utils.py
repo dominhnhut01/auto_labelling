@@ -7,7 +7,7 @@ def create_trackbar(img_cache, mask_cache):
     cv2.createTrackbar("medianBlur_kSize", "Adjusting params", 0, 70, partial(visualizeParams, img_cache = img_cache, mask_cache = mask_cache))
     cv2.createTrackbar("dilation_kSize", "Adjusting params", 0, 40, partial(visualizeParams, img_cache = img_cache, mask_cache = mask_cache))
     cv2.createTrackbar("AreaThreshold", "Adjusting params", 100, 20000, partial(visualizeParams, img_cache = img_cache, mask_cache = mask_cache))
-    
+
 def visualizeParams(x, img_cache ,mask_cache):
     areaThreshold, kernelSize_medianBlur, kernelSize_dilation = getTrackbarValue()
     img_cache_copy = np.copy(img_cache)
@@ -60,8 +60,9 @@ def generate_dir_list(img_folder):
             break
 
     #Add background frames to the video
-    for sub_group in img_dir_list_chunks:
-        sub_group.insert(0, background)
+    for i in range(7):
+        for sub_group in img_dir_list_chunks:
+            sub_group.insert(0, background)
     return img_dir_list_chunks
 
 def crop(img, h_resize = 1480, w_resize = 2048):
@@ -224,10 +225,11 @@ def substract_background(dir_info, kernelSize_medianBlur, kernelSize_dilation, a
             ret, frame = cap.read()
             if ret == False:
                 break
-            if count == 0:
-                fgMask = fgbg.apply(frame, None, 1.0)
-            else:
-                fgMask = fgbg.apply(frame, None, 0.01)
+            # if count == 0:
+            #     fgMask = fgbg.apply(frame, None, 1.0)
+            # else:
+            #     fgMask = fgbg.apply(frame, None, 0.01)
+            fgMask = fgbg.apply(frame)
             img_cache.append(frame)
             mask_cache.append(fgMask)
             count += 1
